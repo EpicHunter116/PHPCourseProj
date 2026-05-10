@@ -1,21 +1,24 @@
 <?php
 session_start();
-require 'db_connect.php';
+require '../model/db_connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = (int)$_POST['id'];
+    $id = (int) $_POST['id'];
     $action = $_POST['action'] ?? '';
 
-    if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
+    if (!isset($_SESSION['cart']))
+        $_SESSION['cart'] = [];
 
     if ($action === 'add') {
         $_SESSION['cart'][$id] = ($_SESSION['cart'][$id] ?? 0) + 1;
     } elseif ($action === 'remove') {
         unset($_SESSION['cart'][$id]);
     } elseif ($action === 'update') {
-        $qty = max(0, (int)$_POST['qty']);
-        if ($qty > 0) $_SESSION['cart'][$id] = $qty;
-        else unset($_SESSION['cart'][$id]);
+        $qty = max(0, (int) $_POST['qty']);
+        if ($qty > 0)
+            $_SESSION['cart'][$id] = $qty;
+        else
+            unset($_SESSION['cart'][$id]);
     }
 }
 
@@ -46,41 +49,62 @@ $total = $subtotal + $tax + $shipping;
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Your Cart - Grok's PHP Store</title>
-    <style> body { font-family: Arial, sans-serif; } table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #ccc; padding: 8px; } </style>
+    <title>Your Cart - Stevie's PHP Store</title>
+    <link rel="stylesheet" href="../style.css">
 </head>
+
 <body>
-    <h1>Your Shopping Cart</h1>
-
-    <?php if (empty($cart_items)): ?>
-        <p>Your cart is empty.</p>
-    <?php else: ?>
-        <table>
-            <tr><th>Product ID</th><th>Product Name</th><th>Quantity</th><th>Price</th><th>Total</th></tr>
-            <?php foreach ($cart_items as $item): ?>
+    <header>
+        <h1>Your Shopping Cart</h1>
+    </header>
+    <nav>
+        <a href="../view/catalog.php">Catalog</a>
+        <a href="../controller/cart.php">Cart</a>
+    </nav>
+    <div class="container">
+        <?php if (empty($cart_items)): ?>
+            <p>Your cart is empty.</p>
+        <?php else: ?>
+            <table class="cart-table">
                 <tr>
-                    <td><?= $item['id'] ?></td>
-                    <td><?= htmlspecialchars($item['name']) ?></td>
-                    <td><?= $item['qty'] ?></td>
-                    <td>$<?= number_format($item['price'], 2) ?></td>
-                    <td>$<?= number_format($item['total'], 2) ?></td>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
                 </tr>
-            <?php endforeach; ?>
-        </table>
-    <?php endif; ?>
+                <?php foreach ($cart_items as $item): ?>
+                    <tr>
+                        <td><?= $item['id'] ?></td>
+                        <td><?= htmlspecialchars($item['name']) ?></td>
+                        <td><?= $item['qty'] ?></td>
+                        <td>$<?= number_format($item['price'], 2) ?></td>
+                        <td>$<?= number_format($item['total'], 2) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        <?php endif; ?>
 
-    <h2>Order Summary</h2>
-    <p>Subtotal: $<?= number_format($subtotal, 2) ?></p>
-    <p>Tax (5%): $<?= number_format($tax, 2) ?></p>
-    <p>Shipping & Handling (10%): $<?= number_format($shipping, 2) ?></p>
-    <h3>Order Total: $<?= number_format($total, 2) ?></h3>
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <p>Subtotal: $<?= number_format($subtotal, 2) ?></p>
+            <p>Tax (5%): $<?= number_format($tax, 2) ?></p>
+            <p>Shipping & Handling (10%): $<?= number_format($shipping, 2) ?></p>
+            <h3>Order Total: $<?= number_format($total, 2) ?></h3>
+        </div>
 
-    <br>
-    <a href="catalog.php">← Continue Shopping</a><br><br>
-    <form method="POST" action="checkout.php">
-        <button type="submit">Check Out</button>
-    </form>
+        <br>
+        <a href="../view/catalog.php" class="btn btn-secondary">← Continue Shopping</a>
+        <form method="POST" action="checkout.php" style="display: inline;">
+            <button type="submit" class="btn">Check Out</button>
+        </form>
+    </div>
+    <footer>
+        <p>&copy; 2023 Stevie's PHP Store</p>
+    </footer>
 </body>
+
 </html>
